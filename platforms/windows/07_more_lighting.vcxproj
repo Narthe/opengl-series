@@ -42,6 +42,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)include\imgui;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -77,6 +78,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\include\imgui\imgui.cpp" />
+    <ClCompile Include="..\..\include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\..\include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\include\imgui\imgui_impl_glfw_gl3.cpp" />
     <ClCompile Include="..\..\source\07_more_lighting\source\main.cpp" />
     <ClCompile Include="..\..\source\07_more_lighting\source\tdogl\Bitmap.cpp" />
     <ClCompile Include="..\..\source\07_more_lighting\source\tdogl\Camera.cpp" />
@@ -94,6 +99,13 @@
     <Image Include="..\..\source\07_more_lighting\resources\wooden-crate.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\imgui\imconfig.h" />
+    <ClInclude Include="..\..\include\imgui\imgui.h" />
+    <ClInclude Include="..\..\include\imgui\imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="..\..\include\imgui\imgui_internal.h" />
+    <ClInclude Include="..\..\include\imgui\stb_rect_pack.h" />
+    <ClInclude Include="..\..\include\imgui\stb_textedit.h" />
+    <ClInclude Include="..\..\include\imgui\stb_truetype.h" />
     <ClInclude Include="..\..\source\07_more_lighting\source\tdogl\Bitmap.h" />
     <ClInclude Include="..\..\source\07_more_lighting\source\tdogl\Camera.h" />
     <ClInclude Include="..\..\source\07_more_lighting\source\tdogl\Program.h" />

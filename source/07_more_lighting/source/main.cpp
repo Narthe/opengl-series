@@ -19,6 +19,8 @@
 #include "platform.hpp"
 
 // third-party libraries
+#include <imgui.h>
+#include "imgui_impl_glfw_gl3.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -97,7 +99,7 @@ struct Light {
 };
 
 // constants
-const glm::vec2 SCREEN_SIZE(800, 600);
+const glm::vec2 SCREEN_SIZE(1366, 768);
 
 // globals
 GLFWwindow* gWindow = NULL;
@@ -303,6 +305,9 @@ static void Render() {
         RenderInstance(*it);
     }
 
+	// Render Imgui windows
+	ImGui::Render();
+
     // swap the display buffers (displays what was just drawn)
     glfwSwapBuffers(gWindow);
 }
@@ -348,11 +353,11 @@ static void Update(float secondsElapsed) {
 
 
     //rotate camera based on mouse movement
-    const float mouseSensitivity = 0.1f;
+    /*const float mouseSensitivity = 0.1f;
     double mouseX, mouseY;
     glfwGetCursorPos(gWindow, &mouseX, &mouseY);
     gCamera.offsetOrientation(mouseSensitivity * (float)mouseY, mouseSensitivity * (float)mouseX);
-    glfwSetCursorPos(gWindow, 0, 0); //reset the mouse, so it doesn't go out of the window
+    glfwSetCursorPos(gWindow, 0, 0);*/ //reset the mouse, so it doesn't go out of the window
 
     //increase or decrease field of view based on mouse wheel
     const float zoomSensitivity = -0.2f;
@@ -372,6 +377,39 @@ void OnError(int errorCode, const char* msg) {
     throw std::runtime_error(msg);
 }
 
+void SetupImgui(bool show_test_window, bool show_another_window, ImVec4 clear_color)
+{
+	ImGui_ImplGlfwGL3_NewFrame();
+
+	// 1. Show a simple window
+	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+	{
+		static float f = 0.0f;
+		ImGui::Text("Hello, world!");
+		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+		ImGui::ColorEdit3("clear color", (float*)&clear_color);
+		if (ImGui::Button("Test Window")) show_test_window ^= 1;
+		if (ImGui::Button("Another Window")) show_another_window ^= 1;
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	}
+
+	// 2. Show another simple window, this time using an explicit Begin/End pair
+	//if (show_another_window)
+	//{
+	//	ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
+	//	ImGui::Begin("Another Window", &show_another_window);
+	//	ImGui::Text("Hello");
+	//	ImGui::End();
+	//}
+
+	// 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+	//if (show_test_window)
+	//{
+	//	ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+	//	ImGui::ShowTestWindow(&show_test_window);
+	//}
+}
+
 // the program starts here
 void AppMain() {
     // initialise GLFW
@@ -382,8 +420,8 @@ void AppMain() {
     // open a window with GLFW
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     gWindow = glfwCreateWindow((int)SCREEN_SIZE.x, (int)SCREEN_SIZE.y, "OpenGL Tutorial", NULL, NULL);
     if(!gWindow)
@@ -410,14 +448,17 @@ void AppMain() {
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
 
     // make sure OpenGL version 3.2 API is available
-    if(!GLEW_VERSION_3_2)
-        throw std::runtime_error("OpenGL 3.2 API is not available.");
+    if(!GLEW_VERSION_4_3)
+        throw std::runtime_error("OpenGL 4.3 API is not available.");
 
     // OpenGL settings
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Setup ImGui binding
+	ImGui_ImplGlfwGL3_Init(gWindow, true);
 
     // initialise the gWoodenCrate asset
     LoadWoodenCrateAsset();
@@ -436,11 +477,46 @@ void AppMain() {
     gLight.attenuation = 0.2f;
     gLight.ambientCoefficient = 0.005f;
 
+	bool show_test_window = true;
+	bool show_another_window = false;
+	ImVec4 clear_color = ImColor(114, 144, 154);
+
     // run while the window is open
     double lastTime = glfwGetTime();
     while(!glfwWindowShouldClose(gWindow)){
         // process pending events
         glfwPollEvents();
+
+		//Setup ImGui windows
+		ImGui_ImplGlfwGL3_NewFrame();
+
+		// 1. Show a simple window
+		// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+		{
+			static float f = 0.0f;
+			ImGui::Text("Hello, world!");
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+			ImGui::ColorEdit3("clear color", (float*)&clear_color);
+			if (ImGui::Button("Test Window")) show_test_window ^= 1;
+			if (ImGui::Button("Another Window")) show_another_window ^= 1;
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		}
+
+		// 2. Show another simple window, this time using an explicit Begin/End pair
+		if (show_another_window)
+		{
+			ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
+			ImGui::Begin("Another Window", &show_another_window);
+			ImGui::Text("Hello");
+			ImGui::End();
+		}
+
+		// 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+		if (show_test_window)
+		{
+			ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+			ImGui::ShowTestWindow(&show_test_window);
+		}
 
         // update the scene based on the time elapsed since last update
         double thisTime = glfwGetTime();
@@ -461,6 +537,7 @@ void AppMain() {
     }
 
     // clean up and exit
+	ImGui_ImplGlfwGL3_Shutdown();
     glfwTerminate();
 }
 
